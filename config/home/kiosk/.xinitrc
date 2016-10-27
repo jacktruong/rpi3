@@ -23,7 +23,7 @@ fi
 /bin/sleep 3
 
 # ping the server to let it know the kiosk is awake
-/usr/bin/wget -q -O - --spider https://www.eng.uwaterloo.ca/~enginfo/enginfo3/heartbeat/enginfo/${LOCATION}
+/usr/bin/wget -q -O /dev/null https://www.eng.uwaterloo.ca/~enginfo/api/heartbeat/enginfo/${LOCATION}
 
 # prevent screen blanking
 /usr/bin/xset s off

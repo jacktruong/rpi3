@@ -1,6 +1,7 @@
 #!/bin/bash
 
 IMAGE="rpi3.img"
+SQUASHFSIMG="rpi3.squashfs.img"
 
 echo "Checking for root .. "
 if [ `id -u` != 0 ]; then
@@ -13,7 +14,7 @@ fi
 do_apps() {
   echo "Setting up environment"
   apt-get -qq update
-  apt-get -qq -y install psmisc libc6-dev kpartx parted dosfstools cdebootstrap
+  apt-get -qq -y install psmisc libc6-dev kpartx parted dosfstools cdebootstrap squashfs-tools
 }
 
 check_free_space() {
@@ -28,6 +29,13 @@ check_free_space() {
 
 check_image_exist() {
   if [ -f "$IMAGE" ]; then
+    echo "Conflicting image found. Please remove/rename."
+    exit
+  else
+    return 0
+  fi
+
+  if [ -f "$SQUASHFSIMG" ]; then
     echo "Conflicting image found. Please remove/rename."
     exit
   else
@@ -101,9 +109,11 @@ do_install_system() {
   # add repositories
   chroot $BOOTSTRAP sh -c "wget -q -O - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key | apt-key add -"
   chroot $BOOTSTRAP sh -c "wget -q -O - http://r.uwaterfowl.ca/uwaterfowl.key | apt-key add -"
+  chroot $BOOTSTRAP sh -c "wget -q -O - http://apt.monkey-project.com/monkey.key | sudo apt-key add -"
   sed -i $BOOTSTRAP/etc/apt/sources.list -e "s/main/main contrib non-free/"
   echo "deb http://archive.raspberrypi.org/debian/ $RELEASE main" >> $BOOTSTRAP/etc/apt/sources.list
   echo "deb http://r.uwaterfowl.ca/debian/ $RELEASE main" >> $BOOTSTRAP/etc/apt/sources.list
+  echo "deb http://apt.monkey-project.com/raspbian $RELEASE main" >> $BOOTSTRAP/etc/apt/sources.list
 
   cp -R config/* $BOOTSTRAP/
 
@@ -127,7 +137,7 @@ do_install_system() {
   chroot $BOOTSTRAP apt-get update
   chroot $BOOTSTRAP apt-get -y upgrade
   chroot $BOOTSTRAP apt-get -y install libraspberrypi-bin raspberrypi-bootloader raspi-copies-and-fills
-  chroot $BOOTSTRAP apt-get -y install dbus fake-hwclock psmisc ntp openssh-server policykit-1
+  chroot $BOOTSTRAP apt-get -y install dbus fake-hwclock psmisc ntp openssh-server policykit-1 ca-certificates monkey
   chroot $BOOTSTRAP apt-get -y install icewm-lite unclutter chromium-browser lsb-release libexif12 xserver-xorg xorg xserver-xorg-video-fbdev x11-utils iptables
   chroot $BOOTSTRAP apt-get -y install linux-image-4.8.2-uwaterfowl linux-firmware-image-4.8.2-uwaterfowl linux-headers-4.8.2-uwaterfowl
   chroot $BOOTSTRAP apt-get clean
@@ -145,6 +155,11 @@ do_install_system() {
   sync
 }
 
+do_makesquashfs() {
+  echo "Making squashfs image."
+  mksquashfs $BOOTSTRAP $SQUASHFSIMG
+}
+
 do_unmount() {
   fuser -av $BOOTSTRAP
   fuser -kv $BOOTSTRAP
@@ -160,4 +175,5 @@ do_apps
 do_create_image
 do_bootstrap
 do_install_system
+do_makesquashfs
 do_unmount
