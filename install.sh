@@ -148,7 +148,9 @@ do_install_system() {
   chroot $BOOTSTRAP chown -R kiosk:kiosk /home/kiosk
 
   sed -i 's/Port 22/Port 35147/' $BOOTSTRAP/etc/ssh/sshd_config
-
+  chroot $BOOTSTRAP service monkey stop
+  chroot $BOOTSTRAP service dbus stop
+  
   chroot $BOOTSTRAP crontab -u root /root/cron
 
   sync
