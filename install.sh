@@ -149,6 +149,8 @@ do_install_system() {
 
   sed -i 's/Port 22/Port 35147/' $BOOTSTRAP/etc/ssh/sshd_config
 
+  chroot $BOOTSTRAP crontab -u root /root/cron
+
   sync
   # done
   echo "Done with the image"

@@ -1,2 +1,2 @@
-14	3	*	*	*	/bin/systemctl reboot
+14	3	*	*	*	/bin/systemctl reboot -i
 */5	*	*	*	*	/bin/bash /home/kiosk/heartbeat.sh
