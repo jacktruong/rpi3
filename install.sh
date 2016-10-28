@@ -109,7 +109,7 @@ do_install_system() {
   # add repositories
   chroot $BOOTSTRAP sh -c "wget -q -O - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key | apt-key add -"
   chroot $BOOTSTRAP sh -c "wget -q -O - http://r.uwaterfowl.ca/uwaterfowl.key | apt-key add -"
-  chroot $BOOTSTRAP sh -c "wget -q -O - http://apt.monkey-project.com/monkey.key | sudo apt-key add -"
+  chroot $BOOTSTRAP sh -c "wget -q -O - http://apt.monkey-project.com/monkey.key | apt-key add -"
   sed -i $BOOTSTRAP/etc/apt/sources.list -e "s/main/main contrib non-free/"
   echo "deb http://archive.raspberrypi.org/debian/ $RELEASE main" >> $BOOTSTRAP/etc/apt/sources.list
   echo "deb http://r.uwaterfowl.ca/debian/ $RELEASE main" >> $BOOTSTRAP/etc/apt/sources.list
