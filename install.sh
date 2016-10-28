@@ -166,6 +166,9 @@ do_unmount() {
   umount $BOOTSTRAP/proc
   umount $BOOTSTRAP/sys
   umount $BOOTSTRAP/dev/pts
+
+  do_makesquashfs
+
   umount $BOOTSTRAP/boot
   umount $BOOTSTRAP
   kpartx -d $IMAGE
@@ -175,5 +178,4 @@ do_apps
 do_create_image
 do_bootstrap
 do_install_system
-do_makesquashfs
 do_unmount
