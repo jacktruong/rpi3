@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# enginfo init, written by Jack Truong
+# jack.truong@uwaterloo.ca
+#
+
+# Standard busybox init
+/bin/busybox --install -s /bin
+
+echo "You're on your own now..."
+
+exec /bin/sh

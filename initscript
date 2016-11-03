@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# enginfo init, written by Jack Truong
+# jack.truong@uwaterloo.ca
+#
+
+# Standard busybox init
+/bin/busybox --install -s /bin
+/bin/mount -t proc proc /proc
+/bin/mount -o remount,rw,noatime / 
+/bin/mount -t sysfs sysfs /sys
+
+/bin/mount -t devtmpfs none /dev
+
+/bin/sleep 1
+
+/bin/mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
+
+/bin/mount -o ro /sdcard/rpi3.squashfs.img /squashfs
+
+/bin/mount -t tmpfs -o size=200m tmpfs /upper
+/bin/mkdir /upper/up /upper/work
+
+#/bin/echo Mounting RW data directory on top
+
+/bin/mount -t overlay overlay -o lowerdir=/squashfs,upperdir=/upper/up,workdir=/upper/work /overlay
+cp -a /bin/sh /overlay/root/sh
+
+/bin/mount -o move /sys /overlay/sys
+/bin/mount -o move /proc /overlay/proc
+/bin/mount -o move /dev /overlay/dev
+exec switch_root /overlay /sbin/init
+
+clear
+echo
+echo Emergency recovery shell activated
+echo
+
+exec /bin/sh
