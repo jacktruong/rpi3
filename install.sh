@@ -139,7 +139,7 @@ do_install_system() {
   chroot $BOOTSTRAP apt-get -y install libraspberrypi-bin raspberrypi-bootloader raspi-copies-and-fills
   chroot $BOOTSTRAP apt-get -y install dbus fake-hwclock psmisc ntp openssh-server policykit-1 ca-certificates monkey
   chroot $BOOTSTRAP apt-get -y install icewm-lite unclutter chromium-browser lsb-release libexif12 xserver-xorg xorg xserver-xorg-video-fbdev x11-utils iptables
-  chroot $BOOTSTRAP apt-get -y install linux-image-4.8.6-uwaterfowl linux-firmware-image-4.8.6-uwaterfowl linux-headers-4.8.6-uwaterfowl
+  chroot $BOOTSTRAP apt-get -y install linux-image-4.4.30-uwaterfowl linux-firmware-image-4.4.30-uwaterfowl linux-headers-4.4.30-uwaterfowl
   chroot $BOOTSTRAP apt-get clean
   chroot $BOOTSTRAP apt-get autoremove -y
 

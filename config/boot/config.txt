@@ -63,4 +63,4 @@ gpu_mem=128
 dtoverlay=pi3-disable-bt
 
 # Custom kernel
-kernel=vmlinuz-4.8.0-v7-uwaterfowl
+kernel=vmlinuz-4.4.30-uwaterfowl
