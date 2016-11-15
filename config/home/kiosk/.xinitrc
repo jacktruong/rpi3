@@ -47,6 +47,6 @@ fi
 
 # start Chrome here so users automatically see it when they start
 # some of these args might not work later, the important one is --no-first-run so the import screen is ignored
-chromium-browser --kiosk --bwsi --auto-launch-at-startup --disable-extensions --disable-sync --no-first-run $APP
+firefox-esr $APP
 
 #script exits after chromium closes and loops back to .bash_profile
