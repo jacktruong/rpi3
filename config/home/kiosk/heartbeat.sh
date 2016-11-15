@@ -1,10 +1,10 @@
 #!/bin/bash
-if [ -f "/home/kiosk/.location" ]; then
-	source /home/kiosk/.location
+if [ -f "/home/kiosk/url.conf" ]; then
+  source "/home/kiosk/url.conf"
 else
-	export LOCATION="test"
+  export PING="https://google.ca"
 fi
 
-/usr/bin/wget -q -O /dev/null https://www.eng.uwaterloo.ca/~enginfo/api/heartbeat/enginfo/${LOCATION}
+/usr/bin/wget -q -O /dev/null $PING
 
 exit
