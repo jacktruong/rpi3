@@ -8,6 +8,9 @@ mkdir -p {bin,dev,etc,lib,lib64,proc,root,sbin,sys,sdcard,squashfs,upper,overlay
 cp -a /dev/{null,console,tty,mmcblk0,ttyAMA0,ttyS0} ./dev/
 cp $CWD/initscript ./init
 chmod +x ./init
+cp $CWD/simple.script ./simple.script
+chmod +x ./simple.script
+
 apt-get update
 apt-get download busybox-static
 dpkg -x *busybox-static*deb ./
