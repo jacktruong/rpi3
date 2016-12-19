@@ -4,5 +4,5 @@ open( HANDLE, "/home/kiosk/emerge |" );
 
 while( <HANDLE> ) {
     $_ =~ s/WARNING URL : (.*)/$1/;
-    system( 'chromium-browser ' . $_ );
+    system( 'firefox-esr ' . $_ );
 }
