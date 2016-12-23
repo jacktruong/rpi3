@@ -6,29 +6,89 @@
 
 # Standard busybox init
 /bin/busybox --install -s /bin
-/bin/mount -t proc proc /proc
-/bin/mount -o remount,rw,noatime / 
-/bin/mount -t sysfs sysfs /sys
+mount -t proc proc /proc
+#mount -o remount,rw,noatime /
+mount -t sysfs sysfs /sys
 
-/bin/mount -t devtmpfs none /dev
+mount -t devtmpfs none /dev
 
-/bin/sleep 1
+sleep 1
 
-/bin/mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
+ifconfig eth0 up
+udhcpc -t 5 -q -s /simple.script
 
-/bin/mount -o ro /sdcard/rpi3.squashfs.img /squashfs
+mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
 
-/bin/mount -t tmpfs -o size=200m tmpfs /upper
-/bin/mkdir /upper/up /upper/work
+if [ -s "/sdcard/station.ini" ]
+  then
+    source /sdcard/station.ini
+fi
 
-#/bin/echo Mounting RW data directory on top
+if [ -z "$STATION" ]
+  then
+    export STATION="default"
+fi
 
-/bin/mount -t overlay overlay -o lowerdir=/squashfs,upperdir=/upper/up,workdir=/upper/work /overlay
-cp -a /bin/sh /overlay/root/sh
+# station should be filled now
 
-/bin/mount -o move /sys /overlay/sys
-/bin/mount -o move /proc /overlay/proc
-/bin/mount -o move /dev /overlay/dev
+wget -O /rpi3.squashfs.img.md5sum http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img.md5sum
+sed -i 's#rpi3#/sdcard/rpi3#' /rpi3.squashfs.img.md5sum
+md5sum -c /rpi3.squashfs.img.md5sum
+
+if [ $? -gt 0 ]
+  then
+    # md5sum did not match
+    mount -o remount,rw /sdcard
+    if [ -s "/sdcard/rpi3.squashfs.img" ]
+      then
+        mv /sdcard/rpi3.squashfs.img /sdcard/rpi3.old.img
+        cd /sdcard
+        md5sum rpi3.old.img > rpi3.old.img.md5sum
+        cd /
+    fi
+    wget -O /sdcard/rpi3.squashfs.img http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img
+    wget -O /sdcard/rpi3.squashfs.img.md5sum http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img.md5sum
+    sync
+    mount -o remount,ro /sdcard
+    cd /sdcard
+    md5sum -c rpi3.squashfs.img.md5sum
+    if [ $? -gt 0 ]
+      then
+        echo "We need to fix it."
+    fi
+fi
+
+# read station.ini file
+# mount partition 2 RW
+
+wget -O /url.conf http://www.eng.uwaterloo.ca/~enginfo/img/$STATION.conf
+diff /url.conf /sdcard/url.conf
+if [ $? -gt 0 ]
+  then
+    mount -o remount,rw /sdcard
+    cp /url.conf /sdcard/url.conf
+    mount -o remount,ro /sdcard
+fi
+
+source /sdcard/url.conf
+
+mount -o ro /sdcard/rpi3.squashfs.img /squashfs
+# if the mount failed, use failover image, report as failure...
+mount -t tmpfs -o size=200m tmpfs /upper
+mkdir /upper/up /upper/work
+
+#echo Mounting RW data directory on top
+
+mount -t overlay overlay -o lowerdir=/squashfs,upperdir=/upper/up,workdir=/upper/work /overlay
+
+echo "$APP" > /overlay/home/kiosk/app.conf
+echo "$PING" > /overlay/home/kiosk/ping.conf
+
+#cp -a sh /overlay/root/sh
+
+mount -o move /sys /overlay/sys
+mount -o move /proc /overlay/proc
+mount -o move /dev /overlay/dev
 exec switch_root /overlay /sbin/init
 
 clear

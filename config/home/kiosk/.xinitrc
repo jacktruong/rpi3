@@ -10,21 +10,7 @@
 
 # sleep in case things aren't loaded yet, like networking
 
-if [ -f "/home/kiosk/url.conf" ]; then
-  source "/home/kiosk/url.conf"
-else
-  export APP="https://google.ca"
-  export PING="https://google.ca"
-fi
-
-if [ -f /home/kiosk/cron ]; then
-  /usr/bin/crontab /home/kiosk/cron
-fi
-
-/bin/sleep 3
-
-# ping the server to let it know the kiosk is awake
-/usr/bin/wget -q -O /dev/null $PING
+/bin/sleep 1
 
 # prevent screen blanking
 /usr/bin/xset s off
@@ -45,8 +31,6 @@ fi
 # runs the emerge client
 /usr/bin/perl /home/kiosk/emerge.pl &
 
-# start Chrome here so users automatically see it when they start
-# some of these args might not work later, the important one is --no-first-run so the import screen is ignored
-firefox-esr $APP
+/bin/bash /home/kioks/startup.sh
 
 #script exits after chromium closes and loops back to .bash_profile
