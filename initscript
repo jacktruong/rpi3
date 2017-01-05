@@ -15,7 +15,14 @@ mount -t devtmpfs none /dev
 sleep 1
 
 ifconfig eth0 up
-udhcpc -t 5 -q -s /simple.script
+udhcpc -t 5 -q -n -s /simple.script
+
+if [ $? -gt 0 ]
+  then
+    echo "No internet, rebooting."
+    sleep 30
+    reboot -f
+fi
 
 mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
 
