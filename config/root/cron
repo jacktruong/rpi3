@@ -1,2 +1,4 @@
 14	3	*	*	*	/bin/systemctl reboot -i
 */5	*	*	*	*	/bin/bash /home/kiosk/heartbeat.sh
+@reboot /sbin/iptables-restore < /root/iptables
+@reboot /usr/sbin/service monkey start

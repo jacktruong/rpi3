@@ -153,6 +153,10 @@ do_install_system() {
 
   chroot $BOOTSTRAP crontab -u root /root/cron
 
+  sed -i 's/Listen 80/Listen 62001/' $BOOTSTRAP/etc/monkey/monkey.conf
+  sed -i 's_# Load /usr/lib/monkey/monkey-cgi.so_Load /usr/lib/monkey/monkey-cgi.so_' $BOOTSTRAP/etc/monkey/plugins.load
+  sed -i 's_# Match /cgi_Match /cgi_' $BOOTSTRAP/etc/monkey/sites/default
+
   sync
   # done
   echo "Done with the image"
