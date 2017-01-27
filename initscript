@@ -72,7 +72,7 @@ fi
 # read station.ini file
 # mount partition 2 RW
 
-wget -q -O /url.ini http://www.eng.uwaterloo.ca/~enginfo/img/$STATION.ini
+wget -q -O /url.ini http://www.eng.uwaterloo.ca/~enginfo/img/station/$STATION.ini
 diff /url.ini /boot/url.ini
 if [ $? -gt 0 ]
   then
