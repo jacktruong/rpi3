@@ -24,11 +24,12 @@ if [ $? -gt 0 ]
     reboot -f
 fi
 
+mount -t vfat -o ro /dev/mmcblk0p1 /boot
 mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
 
-if [ -s "/sdcard/station.ini" ]
+if [ -s "/boot/station.ini" ]
   then
-    source /sdcard/station.ini
+    source /boot/station.ini
 fi
 
 if [ -z "$STATION" ]
@@ -71,16 +72,16 @@ fi
 # read station.ini file
 # mount partition 2 RW
 
-wget -q -O /url.conf http://www.eng.uwaterloo.ca/~enginfo/img/$STATION.conf
-diff /url.conf /sdcard/url.conf
+wget -q -O /url.ini http://www.eng.uwaterloo.ca/~enginfo/img/$STATION.ini
+diff /url.ini /boot/url.ini
 if [ $? -gt 0 ]
   then
-    mount -o remount,rw /sdcard
-    cp /url.conf /sdcard/url.conf
-    mount -o remount,ro /sdcard
+    mount -o remount,rw /boot
+    cp /url.ini /boot/url.ini
+    mount -o remount,ro /boot
 fi
 
-source /sdcard/url.conf
+source /boot/url.ini
 
 mount -o ro /sdcard/$IMAGE /squashfs
 # if the mount failed, use failover image, report as failure...

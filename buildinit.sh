@@ -4,7 +4,7 @@ INIT=$(mktemp -d)
 
 cd $INIT
 
-mkdir -p {bin,dev,etc,lib,lib/arm-linux-gnueabihf,lib64,proc,root,sbin,sys,sdcard,squashfs,upper,overlay}
+mkdir -p {boot,bin,dev,etc,lib,lib/arm-linux-gnueabihf,lib64,proc,root,sbin,sys,sdcard,squashfs,upper,overlay}
 cp -a /dev/{null,console,tty,mmcblk0,ttyAMA0,ttyS0} ./dev/
 cp $CWD/initscript ./init
 chmod +x ./init
