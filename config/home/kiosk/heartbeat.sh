@@ -1,8 +1,8 @@
 #!/bin/bash
-if [ -f "/home/kiosk/url.conf" ]; then
-  source "/home/kiosk/url.conf"
+if [ -a "/home/kiosk/ping.conf" ]; then
+  PING="`cat /home/kiosk/ping.conf`"
 else
-  export PING="https://google.ca"
+  PING="https://google.ca"
 fi
 
 /usr/bin/wget -q -O /dev/null $PING

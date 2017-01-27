@@ -138,7 +138,7 @@ do_install_system() {
   chroot $BOOTSTRAP apt-get -y upgrade
   chroot $BOOTSTRAP apt-get -y install libraspberrypi-bin raspberrypi-bootloader raspi-copies-and-fills
   chroot $BOOTSTRAP apt-get -y install dbus fake-hwclock psmisc ntp openssh-server policykit-1 ca-certificates monkey
-  chroot $BOOTSTRAP apt-get -y install icewm-lite unclutter chromium-browser lsb-release libexif12 xserver-xorg xorg xserver-xorg-video-fbdev x11-utils iptables
+  chroot $BOOTSTRAP apt-get -y install icewm-lite unclutter firefox-esr xserver-xorg xorg xserver-xorg-video-fbdev x11-utils iptables
   chroot $BOOTSTRAP apt-get -y install linux-image-4.4.30-uwaterfowl linux-firmware-image-4.4.30-uwaterfowl linux-headers-4.4.30-uwaterfowl
   chroot $BOOTSTRAP apt-get clean
   chroot $BOOTSTRAP apt-get autoremove -y
@@ -152,6 +152,10 @@ do_install_system() {
   chroot $BOOTSTRAP service dbus stop
 
   chroot $BOOTSTRAP crontab -u root /root/cron
+
+  sed -i 's/Listen 80/Listen 62001/' $BOOTSTRAP/etc/monkey/monkey.conf
+  sed -i 's_# Load /usr/lib/monkey/monkey-cgi.so_Load /usr/lib/monkey/monkey-cgi.so_' $BOOTSTRAP/etc/monkey/plugins.load
+  sed -i 's_# Match /cgi_Match /cgi_' $BOOTSTRAP/etc/monkey/sites/default
 
   sync
   # done

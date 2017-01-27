@@ -6,29 +6,100 @@
 
 # Standard busybox init
 /bin/busybox --install -s /bin
-/bin/mount -t proc proc /proc
-/bin/mount -o remount,rw,noatime / 
-/bin/mount -t sysfs sysfs /sys
+mount -t proc proc /proc
+#mount -o remount,rw,noatime /
+mount -t sysfs sysfs /sys
 
-/bin/mount -t devtmpfs none /dev
+mount -t devtmpfs none /dev
 
-/bin/sleep 1
+sleep 1
 
-/bin/mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
+ifconfig eth0 up
+udhcpc -t 5 -q -n -s /simple.script > /dev/null 2>&1
 
-/bin/mount -o ro /sdcard/rpi3.squashfs.img /squashfs
+if [ $? -gt 0 ]
+  then
+    echo "No internet, rebooting."
+    sleep 30
+    reboot -f
+fi
 
-/bin/mount -t tmpfs -o size=200m tmpfs /upper
-/bin/mkdir /upper/up /upper/work
+mount -t vfat -o ro /dev/mmcblk0p1 /boot
+mount -t ext4 -o ro /dev/mmcblk0p2 /sdcard
 
-#/bin/echo Mounting RW data directory on top
+if [ -s "/boot/station.ini" ]
+  then
+    source /boot/station.ini
+fi
 
-/bin/mount -t overlay overlay -o lowerdir=/squashfs,upperdir=/upper/up,workdir=/upper/work /overlay
-cp -a /bin/sh /overlay/root/sh
+if [ -z "$STATION" ]
+  then
+    export STATION="default"
+fi
 
-/bin/mount -o move /sys /overlay/sys
-/bin/mount -o move /proc /overlay/proc
-/bin/mount -o move /dev /overlay/dev
+# station should be filled now
+
+export IMAGE="rpi3.squashfs.img"
+
+wget -q -O /rpi3.squashfs.img.md5sum http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img.md5sum
+sed -i 's#rpi3#/sdcard/rpi3#' /rpi3.squashfs.img.md5sum
+md5sum -s -c /rpi3.squashfs.img.md5sum
+
+if [ $? -gt 0 ]
+  then
+    echo "Updating firmware..."
+    # md5sum did not match
+    mount -o remount,rw /sdcard
+    if [ -s "/sdcard/rpi3.squashfs.img" ]
+      then
+        mv /sdcard/rpi3.squashfs.img /sdcard/rpi3.old.img
+        cd /sdcard
+        md5sum rpi3.old.img > rpi3.old.img.md5sum
+        cd /
+    fi
+    wget -q -O /sdcard/rpi3.squashfs.img http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img
+    wget -q -O /sdcard/rpi3.squashfs.img.md5sum http://www.eng.uwaterloo.ca/~enginfo/img/rpi3.squashfs.img.md5sum
+    sync
+    mount -o remount,ro /sdcard
+    cd /sdcard
+    md5sum -s -c rpi3.squashfs.img.md5sum
+    if [ $? -gt 0 ]
+      then
+        IMAGE="rpi3.old.img"
+    fi
+fi
+
+# read station.ini file
+# mount partition 2 RW
+
+wget -q -O /url.ini http://www.eng.uwaterloo.ca/~enginfo/img/station/$STATION.ini
+diff /url.ini /boot/url.ini
+if [ $? -gt 0 ]
+  then
+    mount -o remount,rw /boot
+    cp /url.ini /boot/url.ini
+    mount -o remount,ro /boot
+fi
+
+source /boot/url.ini
+
+mount -o ro /sdcard/$IMAGE /squashfs
+# if the mount failed, use failover image, report as failure...
+mount -t tmpfs -o size=200m tmpfs /upper
+mkdir /upper/up /upper/work
+
+#echo Mounting RW data directory on top
+
+mount -t overlay overlay -o lowerdir=/squashfs,upperdir=/upper/up,workdir=/upper/work /overlay
+
+echo "$APP" > /overlay/home/kiosk/app.conf
+echo "$PING" > /overlay/home/kiosk/ping.conf
+
+#cp -a sh /overlay/root/sh
+
+mount -o move /sys /overlay/sys
+mount -o move /proc /overlay/proc
+mount -o move /dev /overlay/dev
 exec switch_root /overlay /sbin/init
 
 clear
