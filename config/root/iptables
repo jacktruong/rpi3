@@ -3,10 +3,11 @@
 :INPUT ACCEPT [48:8541]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--A INPUT -p tcp -m tcp --dport 35147 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 3389 -j ACCEPT
 -A INPUT -p tcp -m tcp --sport 1024:65535 --dport 62001 -m state --state NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --sport 1024:65535 --dport 35147 -m state --state NEW,ESTABLISHED -j ACCEPT
 -A OUTPUT -p tcp -m tcp --sport 62001 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 35147 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT
 -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
 -A OUTPUT -p udp -m udp --dport 123 -j ACCEPT
 -A OUTPUT -p tcp -m tcp --dport 80 -j ACCEPT
